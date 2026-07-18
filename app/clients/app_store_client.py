@@ -1,3 +1,5 @@
+import time
+
 from app_store_web_scraper import (
     AppNotFound,
     AppStoreEntry,
@@ -35,6 +37,33 @@ class AppStoreClient:
         app_id: int,
         country: str,
         pool_limit: int = 500,
+    ) -> list[ReviewResponse]:
+        backoff_seconds = (2, 4)
+
+        for attempt in range(3):
+            reviews = self._fetch_once(
+                app_id=app_id,
+                country=country,
+                pool_limit=pool_limit,
+            )
+
+            if reviews:
+                return reviews
+
+            if attempt < len(backoff_seconds):
+                time.sleep(backoff_seconds[attempt])
+
+        raise ExternalReviewServiceError(
+            "The App Store review service returned an empty response after "
+            "several attempts."
+        )
+
+    def _fetch_once(
+        self,
+        *,
+        app_id: int,
+        country: str,
+        pool_limit: int,
     ) -> list[ReviewResponse]:
         try:
             app = AppStoreEntry(
