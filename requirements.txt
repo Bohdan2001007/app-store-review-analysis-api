@@ -1,4 +1,6 @@
 fastapi==0.116.1
 uvicorn[standard]==0.35.0
-pydantic==2.11.7
+pydantic>=2.12,<3
 app-store-web-scraper==0.2.0
+transformers>=4.40,<5
+torch>=2.2

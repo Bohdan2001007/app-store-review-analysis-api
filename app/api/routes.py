@@ -5,6 +5,7 @@ from app.clients.app_store_client import AppStoreClient
 from app.core.exceptions import (
     AppNotAvailableError,
     ExternalReviewServiceError,
+    SentimentAnalysisError,
 )
 from app.schemas.reviews import (
     ReviewCollectionRequest,
@@ -41,6 +42,12 @@ async def collect_reviews(
         ) from exc
 
     except ExternalReviewServiceError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail=str(exc),
+        ) from exc
+
+    except SentimentAnalysisError as exc:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=str(exc),

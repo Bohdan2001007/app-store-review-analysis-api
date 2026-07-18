@@ -3,7 +3,7 @@ import logging
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime
+from datetime import date, datetime
 
 from app_store_web_scraper import (
     AppNotFound,
@@ -44,6 +44,7 @@ class AppStoreClient:
         *,
         app_id: int,
         country: str,
+        from_date: date | None = None,
         pool_limit: int = 500,
     ) -> list[ReviewResponse]:
         sources = (
@@ -86,7 +87,10 @@ class AppStoreClient:
                     )
                     reviews = []
 
-                if reviews:
+                if reviews and self._has_reviews_matching_date(
+                    reviews=reviews,
+                    from_date=from_date,
+                ):
                     logger.info(
                         "App Store review source '%s' returned %s reviews",
                         source_name,
@@ -94,12 +98,22 @@ class AppStoreClient:
                     )
                     return reviews
 
-                logger.warning(
-                    "App Store review source '%s' returned an empty response "
-                    "on attempt %s",
-                    source_name,
-                    attempt + 1,
-                )
+                if reviews:
+                    logger.warning(
+                        "App Store review source '%s' returned %s reviews, "
+                        "but none matched from_date=%s on attempt %s",
+                        source_name,
+                        len(reviews),
+                        from_date,
+                        attempt + 1,
+                    )
+                else:
+                    logger.warning(
+                        "App Store review source '%s' returned an empty "
+                        "response on attempt %s",
+                        source_name,
+                        attempt + 1,
+                    )
 
                 if attempt < len(backoff_seconds):
                     time.sleep(backoff_seconds[attempt])
@@ -111,9 +125,20 @@ class AppStoreClient:
             )
 
         raise ExternalReviewServiceError(
-            "All App Store review sources returned an empty response after "
+            "All App Store review sources returned no reliable reviews after "
             "several attempts."
         )
+
+    @staticmethod
+    def _has_reviews_matching_date(
+        *,
+        reviews: list[ReviewResponse],
+        from_date: date | None,
+    ) -> bool:
+        if from_date is None:
+            return bool(reviews)
+
+        return any(review.created_at.date() >= from_date for review in reviews)
 
     def _fetch_once(
         self,

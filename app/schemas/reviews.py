@@ -58,6 +58,12 @@ class ReviewCollectionRequest(BaseModel):
         return value
 
 
+class SentimentResponse(BaseModel):
+    label: str
+    score: float
+    model: str
+
+
 class ReviewResponse(BaseModel):
     id: str
     title: str
@@ -65,6 +71,7 @@ class ReviewResponse(BaseModel):
     rating: int = Field(ge=1, le=5)
     author: str | None = None
     created_at: datetime
+    sentiment: SentimentResponse | None = None
 
 
 class ReviewCollectionResponse(BaseModel):

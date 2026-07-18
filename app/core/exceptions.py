@@ -8,3 +8,7 @@ class AppNotAvailableError(ReviewCollectionError):
 
 class ExternalReviewServiceError(ReviewCollectionError):
     """Raised when the external review source cannot be reached."""
+
+
+class SentimentAnalysisError(ReviewCollectionError):
+    """Raised when review sentiment analysis fails."""
