@@ -74,6 +74,18 @@ class ReviewResponse(BaseModel):
     sentiment: SentimentResponse | None = None
 
 
+class KeywordGroupResponse(BaseModel):
+    keyword: str
+    count: int
+    percentage: float
+    comments: list[ReviewResponse]
+
+
+class KeywordInsightsResponse(BaseModel):
+    analyzed_reviews: int
+    keywords: list[KeywordGroupResponse]
+
+
 class ReviewCollectionResponse(BaseModel):
     app_id: int
     country: str
@@ -81,3 +93,4 @@ class ReviewCollectionResponse(BaseModel):
     available_reviews: int
     returned_reviews: int
     reviews: list[ReviewResponse]
+    keyword_insights: KeywordInsightsResponse
