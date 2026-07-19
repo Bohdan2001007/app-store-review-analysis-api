@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import router
 
@@ -12,6 +14,12 @@ app = FastAPI(
 )
 
 app.include_router(router)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
+
+
+@app.get("/", tags=["ui"])
+async def review_analysis_ui() -> FileResponse:
+    return FileResponse("app/static/index.html")
 
 
 @app.get("/health", tags=["system"])
