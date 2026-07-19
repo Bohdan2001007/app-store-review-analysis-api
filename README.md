@@ -1,6 +1,42 @@
 # app-store-review-analysis-api
 REST API for collecting and analyzing Apple App Store reviews using NLP and LLM-generated insights.
 
+## Local Setup
+
+Create and activate a virtual environment:
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+Install the lightweight default dependencies:
+
+```bash
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+```
+
+Create a local `.env` file from `.env.example` and set `OPENAI_API_KEY`.
+
+Run the API and UI locally:
+
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+Open the UI:
+
+```text
+http://127.0.0.1:8000
+```
+
+Check the API health endpoint:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
 ## Docker
 
 Create a local `.env` file from `.env.example` and set `OPENAI_API_KEY`.
@@ -32,7 +68,7 @@ docker compose down
 The container runs FastAPI with:
 
 ```bash
-uvicorn app.main:app --host 0.0.0.0 --port 8000
+python -m uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
 Runtime logs are written to `logs/`.
