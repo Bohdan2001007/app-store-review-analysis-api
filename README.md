@@ -79,24 +79,38 @@ install `torch` or `transformers`; sentiment analysis runs through OpenAI when
 
 ### Sentiment Backends
 
-Default Docker/AWS-friendly mode:
+The sentiment backend is selected with the `SENTIMENT_ANALYZER_BACKEND`
+environment variable.
+
+Use OpenAI sentiment analysis for the default lightweight setup:
 
 ```text
 SENTIMENT_ANALYZER_BACKEND=openai
 OPENAI_SENTIMENT_MODEL=gpt-4.1-mini
 ```
 
-Local Hugging Face ML mode:
+This is the recommended mode for Docker and AWS because it does not require
+installing `torch` or downloading a local ML model.
+
+To switch to the local Hugging Face ML model, install the extra dependencies:
 
 ```bash
 pip install -r requirements-local-ml.txt
 ```
 
+Then set this in `.env`:
+
 ```text
 SENTIMENT_ANALYZER_BACKEND=local
 ```
 
-Local ML mode uses `cardiffnlp/twitter-roberta-base-sentiment-latest` through
+Restart the API after changing `.env`:
+
+```bash
+python -m uvicorn app.main:app --reload
+```
+
+Local ML mode uses `cardiffnlp/twitter-roberta-base-sentiment-latest` via
 `transformers` and `torch`. This is heavier and is not the default Docker mode.
 
 ### Estimate AWS Memory Needs
