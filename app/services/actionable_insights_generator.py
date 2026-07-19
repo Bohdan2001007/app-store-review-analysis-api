@@ -22,6 +22,7 @@ class ActionableInsightsGenerator:
     _DEFAULT_MODEL = "gpt-4.1-mini"
     _DEFAULT_MIN_KEYWORD_COUNT = 4
     _DEFAULT_MAX_COMMENTS_PER_KEYWORD = 8
+    _DEFAULT_FALLBACK_KEYWORD_GROUPS = 3
     _PROMPT_PATH = (
         Path(__file__).resolve().parents[2]
         / "prompts"
@@ -48,6 +49,10 @@ class ActionableInsightsGenerator:
             name="OPENAI_INSIGHTS_MAX_COMMENTS_PER_KEYWORD",
             default=self._DEFAULT_MAX_COMMENTS_PER_KEYWORD,
         )
+        self._fallback_keyword_groups = self._read_positive_int_env(
+            name="OPENAI_INSIGHTS_FALLBACK_KEYWORD_GROUPS",
+            default=self._DEFAULT_FALLBACK_KEYWORD_GROUPS,
+        )
 
     def generate(
         self,
@@ -58,6 +63,11 @@ class ActionableInsightsGenerator:
         selected_keyword_groups = self._select_keyword_groups(
             keyword_insights.keywords
         )
+        if not selected_keyword_groups:
+            selected_keyword_groups = keyword_insights.keywords[
+                : self._fallback_keyword_groups
+            ]
+
         prompt_variables = self._build_prompt_variables(
             reviews=reviews,
             keyword_insights=keyword_insights,
@@ -80,7 +90,7 @@ class ActionableInsightsGenerator:
             )
 
         if not selected_keyword_groups:
-            skipped_reason = "No keyword groups met the minimum count threshold."
+            skipped_reason = "No keyword groups are available for insights."
             self._write_log_section(
                 timestamp=log_timestamp,
                 title="SKIPPED",
