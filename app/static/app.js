@@ -11,6 +11,12 @@ const analyzedReviews = document.querySelector("#analyzed-reviews");
 const insightCount = document.querySelector("#insight-count");
 const insightList = document.querySelector("#insight-list");
 const loadingOverlay = document.querySelector("#loading-overlay");
+const ratingTotal = document.querySelector("#rating-total");
+const ratingChart = document.querySelector("#rating-chart");
+const sentimentTotal = document.querySelector("#sentiment-total");
+const sentimentChart = document.querySelector("#sentiment-chart");
+const keywordTotal = document.querySelector("#keyword-total");
+const keywordAnalysisList = document.querySelector("#keyword-analysis-list");
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -94,12 +100,15 @@ function renderResults(data) {
 
   if (!insights.length) {
     insightList.appendChild(renderEmptyInsight(actionable));
-    return;
+  } else {
+    for (const insight of insights) {
+      insightList.appendChild(renderInsight(insight));
+    }
   }
 
-  for (const insight of insights) {
-    insightList.appendChild(renderInsight(insight));
-  }
+  renderRatingChart(data.reviews || []);
+  renderSentimentChart(data.reviews || []);
+  renderKeywordAnalysis(data.keyword_insights?.keywords || []);
 }
 
 function renderEmptyInsight(actionable) {
@@ -139,6 +148,116 @@ function renderInsight(insight) {
   `;
 
   return card;
+}
+
+function renderRatingChart(reviews) {
+  const total = reviews.length;
+  ratingTotal.textContent = `${total} ${total === 1 ? "review" : "reviews"}`;
+  ratingChart.innerHTML = "";
+
+  for (const rating of [5, 4, 3, 2, 1]) {
+    const count = reviews.filter((review) => Number(review.rating) === rating).length;
+    const percentage = getPercentage(count, total);
+    const row = document.createElement("div");
+    row.className = "rating-row";
+    row.innerHTML = `
+      <div class="rating-label">
+        <span>${rating}</span>
+        <span class="stars">${rating} stars</span>
+      </div>
+      <div class="chart-track">
+        <span class="chart-fill rating-${rating}" style="width: ${percentage}%"></span>
+      </div>
+      <div class="chart-value">
+        <strong>${percentage}%</strong>
+        <span>${count}</span>
+      </div>
+    `;
+    ratingChart.appendChild(row);
+  }
+}
+
+function renderSentimentChart(reviews) {
+  const total = reviews.length;
+  const sentiments = [
+    { label: "positive", title: "Positive" },
+    { label: "neutral", title: "Neutral" },
+    { label: "negative", title: "Negative" },
+  ];
+
+  sentimentTotal.textContent = `${total} ${total === 1 ? "review" : "reviews"}`;
+  sentimentChart.innerHTML = "";
+
+  for (const sentiment of sentiments) {
+    const count = reviews.filter((review) => review.sentiment?.label === sentiment.label).length;
+    const percentage = getPercentage(count, total);
+    const item = document.createElement("div");
+    item.className = `sentiment-item ${sentiment.label}`;
+    item.innerHTML = `
+      <div class="sentiment-ring" style="--value: ${percentage * 3.6}deg">
+        <span>${percentage}%</span>
+      </div>
+      <strong>${sentiment.title}</strong>
+      <p>${count} ${count === 1 ? "comment" : "comments"}</p>
+    `;
+    sentimentChart.appendChild(item);
+  }
+}
+
+function renderKeywordAnalysis(keywordGroups) {
+  keywordTotal.textContent = `${keywordGroups.length} ${keywordGroups.length === 1 ? "group" : "groups"}`;
+  keywordAnalysisList.innerHTML = "";
+
+  if (!keywordGroups.length) {
+    const empty = document.createElement("div");
+    empty.className = "keyword-empty";
+    empty.textContent = "No issue keyword groups were found in negative, neutral, or low-rated reviews.";
+    keywordAnalysisList.appendChild(empty);
+    return;
+  }
+
+  for (const group of keywordGroups.slice(0, 12)) {
+    const item = document.createElement("article");
+    item.className = "keyword-analysis-item";
+    const comments = group.comments || [];
+    const previewComments = comments
+      .slice(0, 2)
+      .map((comment) => `
+        <li>
+          <strong>${escapeHtml(comment.title || "Untitled")}</strong>
+          <span>${escapeHtml(truncateText(comment.text || "", 140))}</span>
+        </li>
+      `)
+      .join("");
+
+    item.innerHTML = `
+      <header>
+        <div>
+          <h4>${escapeHtml(group.keyword)}</h4>
+          <p>${group.count} ${group.count === 1 ? "comment" : "comments"} | ${group.percentage}% coverage</p>
+        </div>
+        <span>${comments.length}</span>
+      </header>
+      <ul>${previewComments}</ul>
+    `;
+    keywordAnalysisList.appendChild(item);
+  }
+}
+
+function getPercentage(count, total) {
+  if (!total) {
+    return 0;
+  }
+
+  return Math.round((count / total) * 10000) / 100;
+}
+
+function truncateText(value, maxLength) {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength - 3)}...`;
 }
 
 function escapeHtml(value) {
