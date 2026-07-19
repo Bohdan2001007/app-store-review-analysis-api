@@ -113,6 +113,28 @@ python -m uvicorn app.main:app --reload
 Local ML mode uses `cardiffnlp/twitter-roberta-base-sentiment-latest` via
 `transformers` and `torch`. This is heavier and is not the default Docker mode.
 
+## Review Source Limitations
+
+The official Apple review source is the App Store Connect API. This project uses
+public review sources instead, because they are easier to run in a demo without
+App Store Connect credentials.
+
+The collector currently tries several sources:
+
+- `app-store-web-scraper`, a third-party library that uses public Apple web
+  endpoints.
+- Apple RSS most recent reviews.
+- Apple RSS most helpful reviews.
+
+These sources are not equally reliable. The third-party scraper itself
+recommends using the official App Store Connect API when possible, and public
+Apple review endpoints may return only a limited subset of all reviews.
+
+Because public sources can occasionally return an empty or partial response
+without a clear error, the client uses retries and fallback sources. If all
+sources fail to provide a reliable result, the API treats the response as an
+external review service failure instead of returning an empty successful result.
+
 ### Estimate AWS Memory Needs
 
 Start the container:
