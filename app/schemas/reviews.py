@@ -86,6 +86,22 @@ class KeywordInsightsResponse(BaseModel):
     keywords: list[KeywordGroupResponse]
 
 
+class ActionableInsightResponse(BaseModel):
+    area: str
+    severity: str
+    summary: str
+    evidence_keywords: list[str]
+    recommended_actions: list[str]
+
+
+class ActionableInsightsResponse(BaseModel):
+    generated: bool
+    model: str | None = None
+    summary: str | None = None
+    insights: list[ActionableInsightResponse] = Field(default_factory=list)
+    skipped_reason: str | None = None
+
+
 class ReviewCollectionResponse(BaseModel):
     app_id: int
     country: str
@@ -94,3 +110,4 @@ class ReviewCollectionResponse(BaseModel):
     returned_reviews: int
     reviews: list[ReviewResponse]
     keyword_insights: KeywordInsightsResponse
+    actionable_insights: ActionableInsightsResponse

@@ -1,0 +1,38 @@
+You are a product analyst. Generate concise actionable product insights from
+Apple App Store review data.
+
+Use only the data provided in this prompt. Do not invent facts, user behavior,
+technical causes, or metrics that are not present in the input.
+
+Overall review context:
+- Total returned comments: {total_reviews}
+- Average rating across returned comments: {average_rating}
+
+Rating distribution:
+This shows how returned comments are distributed across 1-star to 5-star
+ratings. Use it to understand whether issues are isolated or part of a broader
+rating pattern.
+{rating_distribution}
+
+Sentiment distribution:
+This shows how the local sentiment model classified the returned comments. Use
+it to compare emotional tone against star ratings.
+{sentiment_distribution}
+
+Keyword analysis context:
+- Comments analyzed for keyword issues: {keyword_analyzed_reviews}
+
+Selected keyword groups:
+These are recurring issue-oriented keywords that met the configured minimum
+coverage threshold. Each keyword includes a limited set of full comments
+assigned to that keyword as evidence.
+{selected_keywords}
+
+Instructions:
+- Merge related keywords into broader product improvement areas.
+- Prefer concrete product, UX, billing, reliability, support, onboarding, or
+  trust improvements.
+- Do not create an insight unless it is supported by the supplied comments or
+  aggregate statistics.
+- Keep recommendations specific and actionable.
+- Return only JSON that matches the required schema.

@@ -40,7 +40,7 @@ dist/
 
 # Logs
 *.log
-logs/
+logs/*.log
 
 # Local data and generated reports
 data/

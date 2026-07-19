@@ -7,6 +7,9 @@ from app.schemas.reviews import (
     ReviewCollectionResponse,
     ReviewResponse,
 )
+from app.services.actionable_insights_generator import (
+    ActionableInsightsGenerator,
+)
 from app.services.keyword_analyzer import KeywordAnalyzer
 from app.services.sentiment_analyzer import SentimentAnalyzer
 
@@ -17,12 +20,16 @@ class ReviewCollector:
         client: AppStoreClient,
         sentiment_analyzer: SentimentAnalyzer | None = None,
         keyword_analyzer: KeywordAnalyzer | None = None,
+        actionable_insights_generator: ActionableInsightsGenerator | None = None,
         *,
         max_pool_size: int = 500,
     ) -> None:
         self._client = client
         self._sentiment_analyzer = sentiment_analyzer or SentimentAnalyzer()
         self._keyword_analyzer = keyword_analyzer or KeywordAnalyzer()
+        self._actionable_insights_generator = (
+            actionable_insights_generator or ActionableInsightsGenerator()
+        )
         self._max_pool_size = max_pool_size
 
     def collect(
@@ -51,6 +58,10 @@ class ReviewCollector:
         keyword_insights = self._keyword_analyzer.analyze_reviews(
             analyzed_reviews
         )
+        actionable_insights = self._actionable_insights_generator.generate(
+            reviews=analyzed_reviews,
+            keyword_insights=keyword_insights,
+        )
 
         return ReviewCollectionResponse(
             app_id=request.app_id,
@@ -60,6 +71,7 @@ class ReviewCollector:
             returned_reviews=len(analyzed_reviews),
             reviews=analyzed_reviews,
             keyword_insights=keyword_insights,
+            actionable_insights=actionable_insights,
         )
 
     @staticmethod
