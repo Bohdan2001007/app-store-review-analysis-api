@@ -1,0 +1,18 @@
+branch-defaults:
+  main:
+    environment: app-store-review-analysis-api-env
+    group_suffix: null
+global:
+  application_name: app-store-review-analysis-api
+  branch: null
+  default_ec2_keyname: null
+  default_platform: Docker
+  default_region: eu-central-1
+  include_git_submodules: true
+  instance_profile: null
+  platform_name: null
+  platform_version: null
+  profile: app-store-review
+  repository: null
+  sc: git
+  workspace_type: Application

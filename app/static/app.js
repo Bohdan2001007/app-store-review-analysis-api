@@ -17,6 +17,8 @@ const sentimentTotal = document.querySelector("#sentiment-total");
 const sentimentChart = document.querySelector("#sentiment-chart");
 const keywordTotal = document.querySelector("#keyword-total");
 const keywordAnalysisList = document.querySelector("#keyword-analysis-list");
+const MAX_FETCH_ATTEMPTS = 4;
+const RETRY_DELAYS_MS = [2000, 5000, 10000];
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -26,14 +28,8 @@ form.addEventListener("submit", async (event) => {
   clearError();
 
   try {
-    const response = await fetch("/api/v1/reviews/collect", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
-    const data = await response.json();
+    const response = await fetchWithRetry(payload);
+    const data = await parseResponse(response);
 
     if (!response.ok) {
       throw new Error(data.detail || "Review analysis failed.");
@@ -47,6 +43,56 @@ form.addEventListener("submit", async (event) => {
   }
 });
 
+async function fetchWithRetry(payload) {
+  let lastError = null;
+
+  for (let attempt = 1; attempt <= MAX_FETCH_ATTEMPTS; attempt += 1) {
+    try {
+      setLoadingAttempt(attempt);
+      const response = await fetch("/api/v1/reviews/collect", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+        keepalive: false,
+      });
+
+      if (!shouldRetryResponse(response) || attempt === MAX_FETCH_ATTEMPTS) {
+        return response;
+      }
+
+      lastError = new Error(`Server returned HTTP ${response.status}.`);
+    } catch (error) {
+      lastError = error;
+
+      if (attempt === MAX_FETCH_ATTEMPTS) {
+        break;
+      }
+    }
+
+    await wait(
+      RETRY_DELAYS_MS[attempt - 1] || RETRY_DELAYS_MS[RETRY_DELAYS_MS.length - 1]
+    );
+  }
+
+  throw new Error(
+    lastError?.message === "Load failed"
+      ? "The connection was interrupted. Please try again with a smaller limit or run the request again."
+      : lastError?.message || "Review analysis request failed."
+  );
+}
+
+function shouldRetryResponse(response) {
+  return [408, 429, 500, 502, 503, 504].includes(response.status);
+}
+
+function wait(delayMs) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, delayMs);
+  });
+}
+
 function buildPayload() {
   const formData = new FormData(form);
   const fromDate = formData.get("from_date");
@@ -59,12 +105,35 @@ function buildPayload() {
   };
 }
 
+async function parseResponse(response) {
+  const contentType = response.headers.get("content-type") || "";
+
+  if (contentType.includes("application/json")) {
+    return response.json();
+  }
+
+  const text = await response.text();
+
+  return {
+    detail: text || `Request failed with HTTP ${response.status}.`,
+  };
+}
+
 function setLoading(isLoading) {
   submitButton.disabled = isLoading;
   statusPill.textContent = isLoading ? "Running" : "Ready";
   statusPill.classList.toggle("loading", isLoading);
   statusPill.classList.remove("error");
   loadingOverlay.classList.toggle("hidden", !isLoading);
+}
+
+function setLoadingAttempt(attempt) {
+  if (attempt === 1) {
+    statusPill.textContent = "Running";
+    return;
+  }
+
+  statusPill.textContent = `Retry ${attempt}`;
 }
 
 function clearError() {

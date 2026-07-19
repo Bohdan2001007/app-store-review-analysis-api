@@ -286,16 +286,21 @@ class ActionableInsightsGenerator:
         return template.format(**variables)
 
     def _write_prompt_log(self, prompt: str) -> str:
-        self._PROMPT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
         timestamp = datetime.now(UTC).isoformat()
 
-        with self._PROMPT_LOG_PATH.open(
-            mode="a",
-            encoding="utf-8",
-        ) as prompt_log:
-            prompt_log.write(f"\n--- actionable insights prompt {timestamp} ---\n")
-            prompt_log.write(prompt)
-            prompt_log.write("\n")
+        try:
+            self._PROMPT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with self._PROMPT_LOG_PATH.open(
+                mode="a",
+                encoding="utf-8",
+            ) as prompt_log:
+                prompt_log.write(
+                    f"\n--- actionable insights prompt {timestamp} ---\n"
+                )
+                prompt_log.write(prompt)
+                prompt_log.write("\n")
+        except OSError:
+            logger.warning("Failed to write actionable insights prompt log")
 
         return timestamp
 
@@ -306,18 +311,20 @@ class ActionableInsightsGenerator:
         title: str,
         content: str,
     ) -> None:
-        self._PROMPT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-        with self._PROMPT_LOG_PATH.open(
-            mode="a",
-            encoding="utf-8",
-        ) as prompt_log:
-            prompt_log.write(
-                f"\n--- actionable insights {title.lower()} "
-                f"{timestamp} ---\n"
-            )
-            prompt_log.write(content)
-            prompt_log.write("\n")
+        try:
+            self._PROMPT_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
+            with self._PROMPT_LOG_PATH.open(
+                mode="a",
+                encoding="utf-8",
+            ) as prompt_log:
+                prompt_log.write(
+                    f"\n--- actionable insights {title.lower()} "
+                    f"{timestamp} ---\n"
+                )
+                prompt_log.write(content)
+                prompt_log.write("\n")
+        except OSError:
+            logger.warning("Failed to write actionable insights log section")
 
     @staticmethod
     def _to_prompt_json(value: Any) -> str:

@@ -13,7 +13,7 @@ services:
       SENTIMENT_ANALYZER_BACKEND: ${SENTIMENT_ANALYZER_BACKEND:-openai}
       OPENAI_SENTIMENT_MODEL: ${OPENAI_SENTIMENT_MODEL:-gpt-4.1-mini}
     ports:
-      - "8000:8000"
+      - "${HOST_PORT:-8000}:8000"
     volumes:
       - ./logs:/app/logs
     healthcheck:
