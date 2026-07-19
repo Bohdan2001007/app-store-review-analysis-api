@@ -10,6 +10,7 @@ const availableReviews = document.querySelector("#available-reviews");
 const analyzedReviews = document.querySelector("#analyzed-reviews");
 const insightCount = document.querySelector("#insight-count");
 const insightList = document.querySelector("#insight-list");
+const loadingOverlay = document.querySelector("#loading-overlay");
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -57,6 +58,7 @@ function setLoading(isLoading) {
   statusPill.textContent = isLoading ? "Running" : "Ready";
   statusPill.classList.toggle("loading", isLoading);
   statusPill.classList.remove("error");
+  loadingOverlay.classList.toggle("hidden", !isLoading);
 }
 
 function clearError() {
