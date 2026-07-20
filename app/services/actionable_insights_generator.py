@@ -20,9 +20,9 @@ logger = logging.getLogger(__name__)
 
 class ActionableInsightsGenerator:
     _DEFAULT_MODEL = "gpt-4.1-mini"
-    _DEFAULT_MIN_KEYWORD_COUNT = 4
-    _DEFAULT_MAX_COMMENTS_PER_KEYWORD = 8
-    _DEFAULT_FALLBACK_KEYWORD_GROUPS = 3
+    _DEFAULT_MIN_KEYWORD_COUNT = 3
+    _DEFAULT_MAX_COMMENTS_PER_KEYWORD = 6
+    _DEFAULT_FALLBACK_KEYWORD_GROUPS = 2
     _PROMPT_PATH = (
         Path(__file__).resolve().parents[2]
         / "prompts"
