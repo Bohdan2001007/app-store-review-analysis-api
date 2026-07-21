@@ -69,9 +69,7 @@ class ActionableInsightsGenerator:
             selected_keyword_groups = self._select_keyword_groups(
                 keyword_insights.keywords,
                 min_count=self._FALLBACK_MIN_KEYWORD_COUNT,
-            )[
-                : self._fallback_keyword_groups
-            ]
+            )
 
         prompt_variables = self._build_prompt_variables(
             reviews=reviews,
