@@ -21,6 +21,7 @@ logger = logging.getLogger(__name__)
 class ActionableInsightsGenerator:
     _DEFAULT_MODEL = "gpt-4.1-mini"
     _DEFAULT_MIN_KEYWORD_COUNT = 3
+    _FALLBACK_MIN_KEYWORD_COUNT = 2
     _DEFAULT_MAX_COMMENTS_PER_KEYWORD = 6
     _DEFAULT_FALLBACK_KEYWORD_GROUPS = 2
     _PROMPT_PATH = (
@@ -61,10 +62,14 @@ class ActionableInsightsGenerator:
         keyword_insights: KeywordInsightsResponse,
     ) -> ActionableInsightsResponse:
         selected_keyword_groups = self._select_keyword_groups(
-            keyword_insights.keywords
+            keyword_insights.keywords,
+            min_count=self._min_keyword_count,
         )
         if not selected_keyword_groups:
-            selected_keyword_groups = keyword_insights.keywords[
+            selected_keyword_groups = self._select_keyword_groups(
+                keyword_insights.keywords,
+                min_count=self._FALLBACK_MIN_KEYWORD_COUNT,
+            )[
                 : self._fallback_keyword_groups
             ]
 
@@ -171,11 +176,13 @@ class ActionableInsightsGenerator:
     def _select_keyword_groups(
         self,
         keyword_groups: list[KeywordGroupResponse],
+        *,
+        min_count: int,
     ) -> list[KeywordGroupResponse]:
         return [
             group
             for group in keyword_groups
-            if group.count >= self._min_keyword_count
+            if group.count >= min_count
         ]
 
     def _build_prompt_variables(
