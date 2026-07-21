@@ -203,11 +203,13 @@ Default limits:
 
 - `OPENAI_INSIGHTS_MIN_KEYWORD_COUNT=3`: keyword groups with at least this count
   are selected for LLM insights.
-- `OPENAI_INSIGHTS_FALLBACK_KEYWORD_GROUPS=2`: if no keyword group meets the
-  minimum count, the service falls back to keyword groups with count `>= 2` and
-  sends at most the top `2` of them to the LLM.
+- if no keyword group meets the minimum count, the service falls back to all
+  keyword groups with count `>= 2`.
 - `OPENAI_INSIGHTS_MAX_COMMENTS_PER_KEYWORD=6`: at most this many full comments
   are sent to the LLM per selected keyword group.
+- `OPENAI_INSIGHTS_FALLBACK_KEYWORD_GROUPS=2`: fallback group configuration is
+  loaded from env, but fallback selection currently uses all keyword groups with
+  count `>= 2`.
 
 The prompt includes:
 
