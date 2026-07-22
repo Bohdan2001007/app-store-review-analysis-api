@@ -357,7 +357,7 @@ class ActionableInsightsGenerator:
                                 "type": "string",
                                 "enum": ["low", "medium", "high"],
                             },
-                            "summary": {"type": "string"},
+                            "area_summary": {"type": "string"},
                             "evidence_keywords": {
                                 "type": "array",
                                 "items": {"type": "string"},
@@ -370,7 +370,7 @@ class ActionableInsightsGenerator:
                         "required": [
                             "area",
                             "severity",
-                            "summary",
+                            "area_summary",
                             "evidence_keywords",
                             "recommended_actions",
                         ],
@@ -392,7 +392,7 @@ class ActionableInsightsGenerator:
                 ActionableInsightResponse(
                     area=insight.get("area", ""),
                     severity=insight.get("severity", "medium"),
-                    summary=insight.get("summary", ""),
+                    area_summary=insight.get("area_summary", ""),
                     evidence_keywords=insight.get("evidence_keywords", []),
                     recommended_actions=insight.get(
                         "recommended_actions",

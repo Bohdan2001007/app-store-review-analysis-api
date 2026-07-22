@@ -36,3 +36,13 @@ Instructions:
   aggregate statistics.
 - Keep recommendations specific and actionable.
 - Return only JSON that matches the required schema.
+
+Output field meanings:
+- summary: overall summary of the full analyzed review set.
+- insights: list of product improvement areas.
+- area: short name of the improvement area.
+- severity: low, medium, or high based on user impact and recurrence.
+- area_summary: short explanation of this specific improvement area.
+- evidence_keywords: keywords or phrases from the provided keyword groups or
+  comments that support this area.
+- recommended_actions: concrete product actions the team can take.

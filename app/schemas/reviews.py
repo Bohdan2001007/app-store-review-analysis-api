@@ -89,7 +89,7 @@ class KeywordInsightsResponse(BaseModel):
 class ActionableInsightResponse(BaseModel):
     area: str
     severity: str
-    summary: str
+    area_summary: str
     evidence_keywords: list[str]
     recommended_actions: list[str]
 

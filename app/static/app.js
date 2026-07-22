@@ -211,7 +211,7 @@ function renderInsight(insight) {
       <h4>${escapeHtml(insight.area || "Improvement area")}</h4>
       <span class="severity ${escapeHtml(severity)}">${escapeHtml(severity)}</span>
     </header>
-    <p class="insight-summary">${escapeHtml(insight.summary || "")}</p>
+    <p class="insight-summary">${escapeHtml(insight.area_summary || "")}</p>
     <div class="keyword-row">${keywords}</div>
     <ol class="actions">${actions}</ol>
   `;
